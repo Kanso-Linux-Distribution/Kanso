@@ -3,9 +3,26 @@
 let 
   toml-pkgs = builtins.fromTOML (builtins.readFile /vault/settings/packages.toml);
   userPackages = map (name: pkgs.${name}) toml-pkgs.nixpkgs.packages;
+
+  shell-pkgs = with pkgs; [
+    starship
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+  ];
 in {
   nixpkgs.config.allowUnfree = true;
-  environment.systemPackages = userPackages;
+
+  environment.systemPackages = shell-pkgs ++ userPackages;
+  
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    promptInit = "eval \"$(starship init zsh)\"";
+  };
+  
+  programs.zoxide.enable = true;
 
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [

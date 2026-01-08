@@ -45,11 +45,13 @@ def main():
                         "Rebuild",
                         "Rollback",
                         "Hard Clean",
+                        "Switch Env",
                         BACK
                     ], header="System"):
                         case "Rebuild":    launch_prog("kanso rebuild class::clear")
                         case "Rollback":   launch_prog("kanso rollback class::clear")
                         case "Hard Clean": launch_prog("kanso hard-clean class::clear")
+                        case "Switch Env": launch_prog("kanso switch-env class::clear")
 
                 case "Snapshots":
                     match gum_choose([

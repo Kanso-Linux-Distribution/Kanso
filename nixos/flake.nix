@@ -8,14 +8,15 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
   let
     toml = builtins.fromTOML(builtins.readFile /vault/settings/system.toml);
     hostname = toml.system.hostname;
     system = toml.system.platform;
     dotfiles = toml.core.dotfiles;
-    environement = toml.core.environement;
+    environment = toml.core.environment;
   in {
+    programs.hyprland.enable = true;
     nixosConfigurations.kanso = nixpkgs.lib.nixosSystem {
       inherit system;
       specialArgs = { inherit inputs toml; };
@@ -24,11 +25,20 @@
         inputs.impermanence.nixosModules.impermanence
         inputs.home-manager.nixosModules.home-manager
         {
+          environment.pathsToLink = [ "/share/xdg-desktop-portal" "/share/applications" ];
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = { inherit inputs toml; };
+          home-manager.users.${hostname} = {
+            imports = [
+              /kanso/nixos/home.nix
+              dotfiles.${environment}.path
+            ];
+            home.username = hostname;
+            home.homeDirectory = "/home/${hostname}";
+            home.stateVersion = toml.system.version;
+          };
         }
-        ${dotfiles}.${environement}
       ];
     };
   };

@@ -13,10 +13,10 @@ in
     xdg.userDirs = {
         enable = true;
         createDirectories = true;
-        download = "${config.home.homeDirectory}/Downloads";    
-        videos = "${config.home.homeDirectory}/Videos";    
+        download = "${config.home.homeDirectory}/Downloads";
+        videos = "${config.home.homeDirectory}/Videos";
         pictures = "${config.home.homeDirectory}/Pictures";
-        desktop = "${config.home.homeDirectory}/Desktop";    
+        desktop = "${config.home.homeDirectory}/Desktop";  
         documents = null;
         music = null;
         templates = null;

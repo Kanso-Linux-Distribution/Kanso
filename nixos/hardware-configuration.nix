@@ -11,7 +11,6 @@ in {
   nixpkgs.hostPlatform = lib.mkDefault platform;
 
   # HARDWARE
-  hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   hardware.graphics = {
@@ -33,12 +32,35 @@ in {
 
   # BOOT
   boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ "i915" ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.tmp.useTmpfs = true;
   boot.tmp.tmpfsSize = "20G";
   boot.nixStoreMountOpts = [ "ro" "noatime" "nodev" "nosuid" ];
+  
+  boot.loader.timeout = 0;
+  boot.consoleLogLevel = 0;
+  boot.initrd.verbose = false;
+  boot.kernelParams = [
+    "quiet"
+    "splash"
+    "rd.systemd.show_status=false"
+    "udev.log_level=3"
+    "nobgrt"
+    "fbcon=nodefer"
+  ];
+
+  boot.plymouth = {
+    enable = true;
+    theme = "colorful_loop";
+    themePackages = [
+      (pkgs.adi1090x-plymouth-themes.override {
+        selected_themes = [ "colorful_loop" ];
+      })
+    ];
+  };
 
   # KERNEL
   boot.kernelPackages = pkgs.linuxPackages_zen;

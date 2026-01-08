@@ -13,7 +13,9 @@ from itertools import zip_longest
 
 
 PKGS_PATH = "/vault/settings/packages.toml"
+SYSTEM_PATH = "/vault/settings/system.toml"
 BACKUP_PATH = PKGS_PATH + ".bak"
+
 
 def safe_write_toml(path, data):
     with tempfile.NamedTemporaryFile('w', delete=False) as tmp:
@@ -39,6 +41,30 @@ def restore_backup(signum=None, frame=None):
         loading_exec(f"Restoring backup '{BACKUP_PATH}'...", f"sudo cp {BACKUP_PATH} {PKGS_PATH} && sudo rm {BACKUP_PATH}")
     if signum:
         sys.exit(1)
+
+
+def switch_env(clear_screen=False):
+    sudo_auth()
+    if clear_screen:
+        os.system("clear")        
+
+    try:
+        with open(SYSTEM_PATH, "rb") as f:
+            data = tomllib.load(f)
+        
+        all_dotfiles = list(data['core']['dotfiles'].keys())
+
+        choice = gum_choose(all_dotfiles, header=f"Actual environement '{data['core']['environment']}'")
+        data['core']['environment'] = choice
+        
+        safe_write_toml(SYSTEM_PATH, data) 
+
+        loading_exec("Cleaning home config...", "rm -rf ~/.config/*")
+        loading_exec("Switching environment...", "kanso rebuild")
+        loading_exec("Rebooting...", "reboot")
+        
+    except Exception as e:
+        print(f"Error listing packages: {e}")
 
 
 # --- SYSTEM OPERATIONS ---
@@ -186,7 +212,7 @@ def rebuild(clear_screen=False):
         os.system("clear")
 
     log_file = "/tmp/kanso_rebuild.log"
-    cmd = f"sudo nixos-rebuild switch --flake /kanso/nixos#voktex --impure > /dev/null 2> {log_file}"
+    cmd = f"sudo nixos-rebuild switch --flake /kanso/nixos#kanso --impure > /dev/null 2> {log_file}"
     
     if loading_exec("Rebuild system...", cmd):
         print_ok()

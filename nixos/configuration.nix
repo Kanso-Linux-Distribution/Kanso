@@ -8,6 +8,7 @@
         /kanso/nixos/modules/service.nix
         /kanso/nixos/modules/users.nix
         /kanso/nixos/modules/kanso.nix
+        /kanso/nixos/modules/fonts.nix
     ];
     
     nix.settings.experimental-features = [ "nix-command" "flakes" ];

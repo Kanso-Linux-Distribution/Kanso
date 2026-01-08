@@ -21,6 +21,7 @@ in {
       "docker"
     ];
     hashedPassword = "$6$v5G0ed3Zk9LYqs2B$gMGvThpyia.7DI6tGVaWA0/uNfR8N2IEySHaMEgvH7QSA1NfJ0VUF/.AcX.ZPiPiP9zRrwuKFayzmfloSya4d/";
+    shell = pkgs.zsh;
   };
 
   users.users.root = {
