@@ -12,6 +12,7 @@ EXIT = red("Exit")
 
 def launch_prog(cmd):
     subprocess.run(cmd, shell=True)
+    input("")
     sys.exit(0)
 
 def main():
@@ -25,7 +26,6 @@ def main():
                 "Status",
                 "System",
                 "Snapshots",
-                "Apps", 
                 "Power",
                 EXIT
             ], header="Kanso Control Center"):
@@ -45,13 +45,13 @@ def main():
                         "Rebuild",
                         "Rollback",
                         "Hard Clean",
-                        "Switch Env",
+                        "Switch Environment",
                         BACK
                     ], header="System"):
                         case "Rebuild":    launch_prog("kanso rebuild class::clear")
                         case "Rollback":   launch_prog("kanso rollback class::clear")
                         case "Hard Clean": launch_prog("kanso hard-clean class::clear")
-                        case "Switch Env": launch_prog("kanso switch-env class::clear")
+                        case "Switch Environment": launch_prog("kanso switch class::clear")
 
                 case "Snapshots":
                     match gum_choose([
@@ -61,17 +61,6 @@ def main():
                     ], header="Snapshots"):
                         case "Create Snapshot": launch_prog("kanso snapshot class::clear")
                         case "Rewind Snapshot": launch_prog("kanso rewind class::clear")
-
-                case "Apps":
-                    match gum_choose([
-                        "Calendar", "Disk Manager", "File Explorer", 
-                        "Kanso YouTube", "Kanso Code", BACK
-                    ], header="Apps"):
-                        case "Calendar":      launch_prog("calcurse"),
-                        case "Disk Manager":  launch_prog("gdu"),
-                        case "File Explorer": launch_prog("yazi"),
-                        case "Kanso YouTube": launch_prog("kanso yt"),
-                        case "Kanso Code":    launch_prog("kanso code")
 
                 case "Power":
                     match gum_choose([

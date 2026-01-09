@@ -14,7 +14,7 @@ Commands:
   add **[src:pkg]  Install package
   rm **[src:pkg]   Uninstall package
 
-  switch-env       Switch the environment with another dotfiles
+  switch           Switch the environment with another dotfiles
 
   sync-pkgs        Sync 'packages.toml' with system packages
   list-pkgs        List all 'packages.toml' packages 
@@ -51,7 +51,7 @@ def main():
         "sync-pkgs":       lambda: ops.sync_pkgs(clear_screen=clear_arg),
         "list-pkgs":       lambda: ops.list_pkgs(clear_screen=clear_arg),
 
-        "switch-env":      lambda: ops.switch_env(clear_screen=clear_arg),
+        "switch":          lambda: ops.switch_env(clear_screen=clear_arg),
         
         "snapshot":        lambda: ops.snapshot(arg_val, clear_screen=clear_arg),        
         "rewind":          lambda: ops.rewind(clear_screen=clear_arg),

@@ -13,7 +13,7 @@ from itertools import zip_longest
 
 
 PKGS_PATH = "/vault/settings/packages.toml"
-SYSTEM_PATH = "/vault/settings/system.toml"
+SYSTEM_PATH = "/vault/settings.toml"
 BACKUP_PATH = PKGS_PATH + ".bak"
 
 
@@ -51,17 +51,30 @@ def switch_env(clear_screen=False):
     try:
         with open(SYSTEM_PATH, "rb") as f:
             data = tomllib.load(f)
+
+        username = data['system']['username'];
         
         all_dotfiles = list(data['core']['dotfiles'].keys())
 
-        choice = gum_choose(all_dotfiles, header=f"Actual environement '{data['core']['environment']}'")
-        data['core']['environment'] = choice
+        choice = gum_choose(all_dotfiles, header=f"Actual Environment '{data['core']['env']}'")
+        data['core']['env'] = choice
+
+        all_configs = os.listdir(f"/vault/dotfiles/{choice}")
+        all_configs.remove(f"{choice}.toml")
+
+        env_path = f"/vault/dotfiles/{choice}/{choice}.toml"
+
+        with open(env_path, "rb") as fenv:
+            env_data = tomllib.load(fenv)
+
+        env_data["CONFIG_LINKS"] = all_configs
         
         safe_write_toml(SYSTEM_PATH, data) 
+        safe_write_toml(env_path, env_data) 
 
-        loading_exec("Cleaning home config...", "rm -rf ~/.config/*")
-        loading_exec("Switching environment...", "kanso rebuild")
-        loading_exec("Rebooting...", "reboot")
+        loading_exec("Cleaning configuration...", f"rm -rf ~/.config/*")
+        loading_exec("Switching environment...", f"sudo nixos-rebuild switch --flake /kanso/nixos#kanso --impure")
+        loading_exec("Reboot...", f"sync && sudo reboot")
         
     except Exception as e:
         print(f"Error listing packages: {e}")
@@ -306,15 +319,14 @@ def hard_clean(clear_screen=False):
         ("Updating boot menu...", "sudo /run/current-system/bin/switch-to-configuration boot"),
         ("Optimizing Nix store...", "nix-store --optimise"),
         ("Deleting snapshot history...", "sudo rm -rf /vault/.git"),
-        ("Initializing stable snapshot...", "sudo git -C /vault init")
+        ("Initializing stable snapshot...", "sudo git -C /vault init"),
+        ("Creating stable snapshot...", "kanso snapshot stable")
     ]
-
+    
     for title, cmd in steps:
         loading_exec(title, cmd)
 
-    snapshot("STABLE")
     print_ok()
-
 
 
 # --- APPLICATIONS ---

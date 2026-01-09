@@ -1,9 +1,7 @@
 { pkgs, lib, ... }:
 
 let
-  python3Env = pkgs.python3.withPackages (ps: with ps; [ 
-    rtoml 
-  ]);
+  python3Env = pkgs.python3.withPackages (ps: with ps; [ rtoml ]);
 
   kanso-cli = pkgs.stdenv.mkDerivation {
     name = "kanso";
@@ -31,11 +29,7 @@ let
   };
 in
 {
-  environment.systemPackages = [
-    kanso-cli
-    pkgs.gum
-    pkgs.git
-  ];
+  environment.systemPackages = [ kanso-cli ];
 
   environment.etc."os-release".text = lib.mkForce ''
     NAME="KANSO"

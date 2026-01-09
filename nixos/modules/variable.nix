@@ -1,9 +1,9 @@
 { config, pkgs, ... }:
 
 let
-    toml-sys = builtins.fromTOML(builtins.readFile /vault/settings/system.toml);
-    toml-pkgs = builtins.fromTOML(builtins.readFile /vault/settings/packages.toml);
+    toml-settings = builtins.fromTOML(
+        builtins.readFile /vault/settings.toml
+    );
 in {
-    system.stateVersion = toml-sys.system.version;
-    system.nixos.label = toml-pkgs.generation-label;
+    system.stateVersion = toml-settings.system.nix-version;
 }

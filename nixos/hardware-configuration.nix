@@ -1,8 +1,8 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 let
-  toml = builtins.fromTOML(builtins.readFile /vault/settings/system.toml);
-  hostname = toml.system.hostname;
+  toml = builtins.fromTOML(builtins.readFile /vault/settings.toml);
+  username = toml.system.username;
   platform = toml.system.platform;
 in {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -119,10 +119,9 @@ in {
       "/etc/machine-id"
     ];
 
-    users.${hostname} = {
+    users.${username} = {
       directories = [
         "Desktop"
-        ".cache"
       ];
     };
   };

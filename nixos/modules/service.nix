@@ -1,25 +1,49 @@
 { config, lib, pkgs, ... }:
 let
-    toml = builtins.fromTOML (builtins.readFile /vault/settings/system.toml);
-    timeZone = toml.system.timeZone;
+    toml-settings = builtins.fromTOML(
+        builtins.readFile /vault/settings.toml
+    );
 
-    environment = toml.core.environment;
-    default-session = toml.system.default-session;
-    start-env-script = toml.core.dotfiles.${environment}.start-env-script;
+    env = toml-settings.core.env;
+
+    toml-env = builtins.fromTOML(
+        builtins.readFile toml-settings.core.dotfiles.${env}.path
+    );
+    
+    timeZone = toml-settings.system.timeZone;
+    exec-session = toml-env.EXEC_SESSION;
+    compositor = toml-env.COMPOSITOR;
+    shell = toml-env.SHELL;
+    protocol = toml-env.PROTOCOL;
+    terminal = toml-env.TERMINAL;
+
+    cmd =
+        if (compositor == "gnome") then (if protocol == "wayland" then "${pkgs.dbus}/bin/dbus-run-session ${pkgs.gnome-session}/bin/gnome-session" else "gnome-xorg")
+        else if (compositor == "plasma") then (if protocol == "wayland" then "startplasma-wayland" else "startplasma-x11")
+        else if (compositor == "cage") then "cage ${terminal}"
+        else if (compositor == "cinnamon") then "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cinnamon-session}/bin/cinnamon-session"
+        else compositor;
 in {
+    # SUDO
+    security.sudo.extraConfig = "
+        Defaults lecture=\"never\"
+    ";
+    
+    # SHELL
+    programs.${shell}.enable = true;
+    
     # SYSTEM
     services.dbus.enable = true;
-    services.displayManager.defaultSession = default-session;
+    programs.dconf.enable = true;
+    services.displayManager.defaultSession = compositor;
 
     # LOCK SCREEN
     services.greetd = {
         enable = true;
-        settings = {
-            default_session = {
-                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --asterisks --cmd \"${start-env-script}\"";
-                user = "greeter";
-            };
-        };
+        settings.default_session = {
+            command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --user-menu --asterisks --cmd \"${cmd}\"";
+            user = "greeter";
+        };    
     };
     
     # NETWORK
@@ -45,5 +69,5 @@ in {
 
     # SSH
     services.openssh.enable = true;
-    programs.ssh.startAgent = true;
+    #programs.ssh.startAgent = (compositor != "gnome") && (compositor != "cennamon");
 }
