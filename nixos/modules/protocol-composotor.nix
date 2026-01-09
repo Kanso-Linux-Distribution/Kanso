@@ -35,7 +35,6 @@ in {
 
     displayManager = {
       defaultSession = compositor;
-      lightdm.enable = (compositor == "cinnamon");
     };
   };
   

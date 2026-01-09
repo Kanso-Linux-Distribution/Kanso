@@ -2,6 +2,10 @@
 
 {
   environment.systemPackages = with pkgs; [
+    xorg.xinit
+    xorg.xf86inputlibinput
+    xorg.xf86inputevdev
+    
     python3   # running kanso
     git       # config version
     nano      # editor

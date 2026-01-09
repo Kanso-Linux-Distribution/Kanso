@@ -21,7 +21,7 @@ let
         if (compositor == "gnome") then (if protocol == "wayland" then "${pkgs.dbus}/bin/dbus-run-session ${pkgs.gnome-session}/bin/gnome-session" else "gnome-xorg")
         else if (compositor == "plasma") then (if protocol == "wayland" then "startplasma-wayland" else "startplasma-x11")
         else if (compositor == "cage") then "cage ${terminal}"
-        else if (compositor == "cinnamon") then "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cinnamon-session}/bin/cinnamon-session"
+        else if (compositor == "cinnamon") then "${pkgs.xorg.xinit}/bin/startx ${pkgs.dbus}/bin/dbus-run-session ${pkgs.cinnamon-session}/bin/cinnamon-session -- -config /etc/X11/xorg.conf.d"
         else compositor;
 in {
     # SUDO
@@ -35,6 +35,7 @@ in {
     # SYSTEM
     services.dbus.enable = true;
     programs.dconf.enable = true;
+    services.libinput.enable = true;
     services.displayManager.defaultSession = compositor;
 
     # LOCK SCREEN
